@@ -40,6 +40,7 @@ import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.SyncHttpClient;
 
 import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.java_websocket.handshake.ServerHandshake;
 
 import java.lang.ref.WeakReference;
@@ -350,8 +351,13 @@ public class WebSocketService extends Service {
             Log.i(TAG, "isClosed or isClosing...reConnect");
             connectWebServer();
         }
+
         String loginStr = "login:" + device_id + ":" + secret + "\n";
-        webSocketClient.send(loginStr);
+        try {
+            webSocketClient.send(loginStr);
+        } catch (WebsocketNotConnectedException e) {
+            Log.e(TAG, "Websocket not connected: " + e);
+        }
 
         Log.i(TAG, "Login WebSocketServer ....................");
         sb.append("\n客户端登陆 WebServer：\n");

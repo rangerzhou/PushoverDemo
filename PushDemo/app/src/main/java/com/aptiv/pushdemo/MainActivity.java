@@ -125,26 +125,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void initView() {
-        new AlertDialog.Builder(this)
-                .setTitle("权限申请")
-                .setMessage("允许显示在其他应用的上层，否则部分功能将无法使用")
-                .setCancelable(false)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (!Settings.canDrawOverlays(MainActivity.this)) {
+        if (!Settings.canDrawOverlays(MainActivity.this)) {
+            new AlertDialog.Builder(this)
+                    .setTitle("权限申请")
+                    .setMessage("允许显示在其他应用的上层，否则部分功能将无法使用")
+                    .setCancelable(false)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
                             Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                                     Uri.parse("package:" + getPackageName()));
                             startActivityForResult(intent, GRANT_OVERLAY_PERMISSION);
                         }
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                    }
-                }).create().show();
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    }).create().show();
+
+        }
+
 
         tvResponse = findViewById(R.id.tv_response);
         editEmail = findViewById(R.id.edit_email);
@@ -593,9 +595,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-        webSocketClient.close();
+        if (webSocketClient != null) {
+            webSocketClient.close();
+        }
         unregisterReceiver(broadcastReceiver);
+        super.onDestroy();
     }
 
 }
