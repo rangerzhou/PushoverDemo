@@ -1,6 +1,7 @@
 package com.aptiv.pushdemo;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -11,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,7 +27,9 @@ import android.text.method.ScrollingMovementMethod;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -69,8 +73,8 @@ public class WebSocketService extends Service {
     private static String MSG_DEL_JSON_URL = "https://api.pushover.net/1/devices/";
     private static String SERVER_URI = "wss://client.pushover.net/push";
 
-    private String secret = "dorhd6n1af7ii5fy38bsumsgn4isarx1tp1g2b6tbms6c26yq9vvfnjukqou";
-    private String device_id = "3zoxxnttv4brs91wexk1rqacoha6icinmxdo2hyp";
+    private String secret = "dorhd6n1af7ii5fy38bsumsgn4isarx1tp1g2b6tbms6c26yq9vvfnjukqou"; //"dorhd6n1af7ii5fy38bsumsgn4isarx1tp1g2b6tbms6c26yq9vvfnjukqou";
+    private String device_id = "mmjjw4jjhia4toapg4ubqtcsig9puf8uga5wnxro"; //"3zoxxnttv4brs91wexk1rqacoha6icinmxdo2hyp";
     private String messageId = "";
     private String msgTitle = "";
     private String msgDescription = "";
@@ -86,6 +90,7 @@ public class WebSocketService extends Service {
     Bundle bundle = new Bundle();
 
     public WebSocketService() {
+
     }
 
     @Override
@@ -100,6 +105,7 @@ public class WebSocketService extends Service {
         startForeService();
 
         Log.i(TAG, "onCreate");
+        //sendPostRequest(LOGIN_JSON_URL);
         connectWebServer();
     }
 
@@ -123,7 +129,6 @@ public class WebSocketService extends Service {
                     //Bundle bundle = new Bundle();
                     bundle.putString("text", sb.toString());
                     sendBroadcast("action_connect_open", bundle);
-
                 }
 
                 @Override
@@ -198,6 +203,7 @@ public class WebSocketService extends Service {
                     JSONObject jsonObject = JSONObject.parseObject(str);
                     secret = jsonObject.getString("secret");
                     Log.i(TAG, "secret: " + secret);
+                    //sendPostRequest(REGIST_JSON_URL);
                     loginSocket(webSocketClient);
                 }
 
@@ -215,7 +221,7 @@ public class WebSocketService extends Service {
             Log.i(TAG, "Start Registration...");
             HashMap<String, String> registParamsMap = new HashMap<>();
             registParamsMap.put("secret", secret);
-            registParamsMap.put("name", "HomeAssistant");
+            registParamsMap.put("name", "HASS");
             registParamsMap.put("os", "O");
             RequestParams registParams = new RequestParams(registParamsMap);
             getClient().post(REGIST_JSON_URL, registParams, new AsyncHttpResponseHandler() {
@@ -227,12 +233,20 @@ public class WebSocketService extends Service {
                     device_id = jsonObject.getString("id");
                     Log.i(TAG, "device_id: " + device_id);
                     // 19v5rnfdzofua76hs6toqseuwtxv9c2spocrjfc5
+                    //loginSocket(webSocketClient);
                 }
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                     Log.i(TAG, "getRegistPost onFailure error: " + error.toString());
-                    Log.i(TAG, "Old device_id: " + "3zoxxnttv4brs91wexk1rqacoha6icinmxdo2hyp");
+                    Log.i(TAG, "Old device_id: " + device_id);
+                    String str = new String(responseBody);
+                    JSONObject jsonObject = JSONObject.parseObject(str);
+                    if (jsonObject.getString("errors") != null && jsonObject.getString("errors").contains("has already been taken")) {
+                        //loginSocket(webSocketClient);
+                    } else if (jsonObject.getString("errors") != null && jsonObject.getString("errors").contains("has already been taken")) {
+
+                    }
                     //device_id = "sfyvgsk3tja2sd9jovfvbo4on8huxmdry1n7xw77";
                 }
             });
@@ -464,7 +478,7 @@ public class WebSocketService extends Service {
 
     public void showMyDialog(final String location) {
         Log.i(TAG, "location.length: " + location.length() + ", location: " + location);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+        /*AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setMessage("需要导航到 " + location + " 吗？")
                 .setCancelable(false)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -492,8 +506,10 @@ public class WebSocketService extends Service {
                 dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
             }
             dialog.show();
-        }
+        }*/
 
+        MyDialog myDialog = new MyDialog(this, R.style.Theme_AppCompat_Dialog, location);
+        myDialog.show();
     }
 
     @Override

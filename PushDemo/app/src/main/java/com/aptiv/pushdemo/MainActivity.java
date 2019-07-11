@@ -19,7 +19,6 @@ import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -124,7 +123,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startForegroundService(serviceIntent);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        grantPermission();
+    }
+
     public void initView() {
+        tvResponse = findViewById(R.id.tv_response);
+        editEmail = findViewById(R.id.edit_email);
+        editPwd = findViewById(R.id.edit_pwd);
+        btnLogin = findViewById(R.id.btn_login);
+        btnRegist = findViewById(R.id.btn_regist);
+        btnDwnMsg = findViewById(R.id.btn_msgdwn);
+        btnDelMsg = findViewById(R.id.btn_msgdel);
+        btnLoginWebsocket = findViewById(R.id.btn_loginsocket);
+
+        btnDelMsg.setOnClickListener(this);
+
+        initBroadcast();
+    }
+
+    private void grantPermission() {
         if (!Settings.canDrawOverlays(MainActivity.this)) {
             new AlertDialog.Builder(this)
                     .setTitle("权限申请")
@@ -146,18 +166,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }).create().show();
 
         }
-
-
-        tvResponse = findViewById(R.id.tv_response);
-        editEmail = findViewById(R.id.edit_email);
-        editPwd = findViewById(R.id.edit_pwd);
-        btnLogin = findViewById(R.id.btn_login);
-        btnRegist = findViewById(R.id.btn_regist);
-        btnDwnMsg = findViewById(R.id.btn_msgdwn);
-        btnDelMsg = findViewById(R.id.btn_msgdel);
-        btnLoginWebsocket = findViewById(R.id.btn_loginsocket);
-
-        initBroadcast();
     }
 
     private void connectWebServer() {
@@ -408,6 +416,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_msgdel:
                 //sendPostRequest(MSG_DEL_JSON_URL);
                 //break;
+                //new MyDialog(this).showDialog(R.layout.custom_dialog, 80, 50, "location");
+                MyDialog myDialog = new MyDialog(this, R.style.ThemeOverlay_AppCompat_Dialog, "上海火车站");
+                myDialog.show();
+                break;
             case R.id.btn_loginsocket:
                 Log.i(TAG, "Start Login Server !!!");
                 //loginSocket(webSocketClient);
