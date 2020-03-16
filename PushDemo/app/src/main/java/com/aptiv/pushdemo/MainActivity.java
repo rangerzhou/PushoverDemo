@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         initView();
-        // 初始不用 service 的方法
+        // 初始不用 service 的方法，已更换其他方式实现
         //connectWebServer();
 
         // Start WebSocketService
@@ -288,14 +288,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     JSONObject jsonObject = JSONObject.parseObject(str);
                     device_id = jsonObject.getString("id");
                     Log.i(TAG, "device_id: " + device_id);
-                    // 19v5rnfdzofua76hs6toqseuwtxv9c2spocrjfc5
                 }
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                     Log.i(TAG, "getRegistPost onFailure error: " + error.toString());
                     Log.i(TAG, "Old device_id: " + "3zoxxnttv4brs91wexk1rqacoha6icinmxdo2hyp");
-                    //device_id = "sfyvgsk3tja2sd9jovfvbo4on8huxmdry1n7xw77";
                 }
             });
         } else if (MSG_DWN_JSON_URL.equals(url)) {
